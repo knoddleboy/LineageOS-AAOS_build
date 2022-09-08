@@ -9,6 +9,9 @@ Execution
 
 To download and execute the script, run the commands below:
 
-`wget https://github.com/Knoddleboy/LineageOS-AAOS_build/blob/main/lineageos-aaos_build.sh`  
-`chmod +x lineageos-aaos_build.sh`  
-`./lineageos-aaos_build.sh`  
+```
+cd WORKING_DIRECTORY
+wget https://github.com/Knoddleboy/LineageOS-AAOS_build/blob/main/lineageos-aaos_build.sh
+chmod +x lineageos-aaos_build.sh
+sudo ./lineageos-aaos_build.sh
+```
