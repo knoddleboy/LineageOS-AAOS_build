@@ -317,16 +317,20 @@ if ! [[ -f "~/bin/repo" ]]; then
     # Download the git-repo tool
     curl -s 'https://storage.googleapis.com/git-repo-downloads/repo' > ~/bin/repo
     if [ $? -eq 0 ]; then
+        chmod +x ~/bin/repo
         echo -e "${_M_SUCCESS} The ${_C_BL}git-repo${_C_DF} tool ${_C_GR}successfully${_C_DF} downloaded into the ${_C_OR}~/bin${_C_DF} folder."
     else
         echo -e "${_M_WARNING} An ${_C_RD}error${_C_DF} occured while downloading the ${_C_BL}git-repo binary${_C_DF}."
         exit 1
     fi
-    chmod +x ~/bin/repo
 fi
 echo
 
-# TODO: remove remote status when error occurs
+# Delete .repo if was an error while previous run
+if [[ -f "./.repo" ]]; then
+    sudo rm ./.repo
+fi
+
 # Initialize the remote in the working directory
 echo -e "${_M_SUCCESS} Initializing the repository on branch ${_C_OR}${BRANCH}${_C_DF}...\n"
 repo init -u --depth=0 'https://github.com/LineageOS/android.git' -b "${BRANCH}"
@@ -345,10 +349,6 @@ echo
 repo sync -c
 if [ $? -eq 0 ]; then
     echo -e "\n${_M_SUCCESS} The ${_C_BL}source code${_C_GR} successfully${_C_DF} downloaded."
-
-    # Create anchor file
-    touch ./.anch
-    chmod 444 .anch
 else
     echo -e "${_M_WARNING} An ${_C_RD}error${_C_DF} occured while downloading the source code."
     exit 1
