@@ -95,10 +95,10 @@ fi
 
 # Check for the disk size
 DISK_CAPACITY=$(df -H . \
-                    | grep -vE '^Filesystem|tmpfs|cdrom'
-                    | awk '{ print $2 }'
-                    | rev
-                    | cut -c 2-
+                    | grep -vE '^Filesystem|tmpfs|cdrom' \
+                    | awk '{ print $2 }' \
+                    | rev \
+                    | cut -c 2- \
                     | rev
 )
 
@@ -156,8 +156,8 @@ readonly github_codenames_pages='https://github.com/orgs/LineageOS/repositories?
 
 # The number of pages to search on github
 TOTAL_PAGES=$(curl -s "${github_codenames_pages}" \
-                | sed -nE '/data-total-pages/p'
-                | sed 's/.*data-total-pages="//g'
+                | sed -nE '/data-total-pages/p' \
+                | sed 's/.*data-total-pages="//g' \
                 | sed 's/">1<\/em>.*//g'
 )
 
@@ -179,7 +179,7 @@ current_page=1
 while [[ "${current_page}" < "${TOTAL_PAGES}" ]]; do
     link='https://github.com/orgs/LineageOS/repositories?language=&page='"${current_page}"'&q=android_device_'"${VENDOR}"'_&sort=&type=public'
     github_vendor_codenames+=$(curl -s "${link}" \
-                                | sed -nE '/^[ \t]*android_device_'"${VENDOR}"'_\w/p'
+                                | sed -nE '/^[ \t]*android_device_'"${VENDOR}"'_\w/p' \
                                 | sed 's/^[ \t]*android_device_'"${VENDOR}"'_//g'
     )
     github_vendor_codenames+=" "
@@ -226,9 +226,9 @@ echo -e "\n${_M_MSG} Preparing for the ${_C_OR}LineageOS${_C_DM} build...${_C_DF
 
 # Get all the available branches for the chosen device
 available_branches=$(curl -s 'https://github.com/LineageOS/android_device_samsung_'"${DEVICE_CODENAME}"'/branches' \
-                        | sed -nE '/branch="/p'
-                        | sed 's/^[ \t]*branch="//g'
-                        | sed 's/"//g'
+                        | sed -nE '/branch="/p' \
+                        | sed 's/^[ \t]*branch="//g' \
+                        | sed 's/"//g' \
                         | sort -r
 )
 # Display the branches
