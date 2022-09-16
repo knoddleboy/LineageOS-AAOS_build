@@ -20,6 +20,10 @@ function out_blue() {
     echo -e "${_C_BL}$1${_C_DF}"
 }
 
+function print_good() {
+    echo -e "${_M_SUCCESS} $1"
+}
+
 function warn() {
     echo -e "${_M_WARNING} ${_C_OR}$1${_C_DF}"
 }
@@ -220,7 +224,7 @@ done
 # Selected codename
 DEVICE_CODENAME=$(echo "${vendor_codenames}" | cut -d " " -f "${device_index}")
 
-echo -e "${_M_SUCCESS} You have chosen ${_C_BL}${VENDOR_FULL} ${_C_DF}(${_C_BL}${DEVICE_CODENAME}${_C_DF})."
+print_good "You have chosen ${_C_BL}${VENDOR_FULL} ${_C_DF}(${_C_BL}${DEVICE_CODENAME}${_C_DF})."
 
 echo -e "\n${_M_MSG} Preparing for the ${_C_OR}LineageOS${_C_DM} build...${_C_DF}\n"
 
@@ -258,7 +262,7 @@ if [[ "${DEVICE_CODENAME}" == "gts4lv" || "${DEVICE_CODENAME}" == "gta4xlwifi" ]
 fi
 
 echo -e "\n${_M_MSG} Establishing a ${_C_OR}LineageOS${_C_DM} build environment...${_C_DF}\n"
-echo -e "${_M_SUCCESS} The following packages will be installed:"
+print_good "The following packages will be installed:"
 
 # Packages needed for the building process
 readonly packages="bc bison build-essential \
@@ -300,7 +304,7 @@ sudo apt-get update
 sudo apt-get install "${packages}" -yq
 if [ $? -eq 0 ]; then
     echo -e "${_BREAK}\n"
-    echo -e "${_M_SUCCESS} Packages ${_C_GR}successfully${_C_DF} installed."
+    print_good "Packages ${_C_GR}successfully${_C_DF} installed."
 else
     echo -e "${_BREAK}\n"
     echo -e "${_M_WARNING} An ${_C_RD}error${_C_DF} occured while installing packages."
@@ -310,7 +314,7 @@ fi
 if ! [[ -d "~/bin" ]]; then
     # Create the folder where the git-repo tool will be downloaded to
     mkdir -p ~/bin
-    echo -e "${_M_SUCCESS} Created ${_C_OR}~/bin${_C_DF} folder."
+    print_good "Created ${_C_OR}~/bin${_C_DF} folder."
 fi
 
 if ! [[ -f "~/bin/repo" ]]; then
@@ -318,7 +322,7 @@ if ! [[ -f "~/bin/repo" ]]; then
     curl -s 'https://storage.googleapis.com/git-repo-downloads/repo' > ~/bin/repo
     if [ $? -eq 0 ]; then
         chmod +x ~/bin/repo
-        echo -e "${_M_SUCCESS} The ${_C_BL}git-repo${_C_DF} tool ${_C_GR}successfully${_C_DF} downloaded into the ${_C_OR}~/bin${_C_DF} folder."
+        print_good "The ${_C_BL}git-repo${_C_DF} tool ${_C_GR}successfully${_C_DF} downloaded into the ${_C_OR}~/bin${_C_DF} folder."
     else
         echo -e "${_M_WARNING} An ${_C_RD}error${_C_DF} occured while downloading the ${_C_BL}git-repo binary${_C_DF}."
         exit 1
@@ -332,11 +336,11 @@ if [[ -f "./.repo" ]]; then
 fi
 
 # Initialize the remote in the working directory
-echo -e "${_M_SUCCESS} Initializing the repository on branch ${_C_OR}${BRANCH}${_C_DF}...\n"
+print_good "Initializing the repository on branch ${_C_OR}${BRANCH}${_C_DF}...\n"
 repo init -u --depth=0 'https://github.com/LineageOS/android.git' -b "${BRANCH}"
 if [ $? -eq 0 ]; then
     shift_prev_line
-    echo -e "${_M_SUCCESS} The ${_C_BL}repository ${_C_GR}successfully${_C_DF} initialized on the branch ${_C_OR}${BRANCH}${_C_DF} in ${PWD}."
+    print_good "The ${_C_BL}repository ${_C_GR}successfully${_C_DF} initialized on the branch ${_C_OR}${BRANCH}${_C_DF} in ${PWD}."
 else
     echo -e "${_M_WARNING} An ${_C_RD}error${_C_DF} occured while initializing the repository."
     exit 1
@@ -348,7 +352,8 @@ read -p "${_M_SUCCESS} ${_C_OR}Enter${_C_DF} to start downloading the source cod
 echo
 repo sync -c
 if [ $? -eq 0 ]; then
-    echo -e "\n${_M_SUCCESS} The ${_C_BL}source code${_C_GR} successfully${_C_DF} downloaded."
+    echo
+    print_good "The ${_C_BL}source code${_C_GR} successfully${_C_DF} downloaded."
 else
     echo -e "${_M_WARNING} An ${_C_RD}error${_C_DF} occured while downloading the source code."
     exit 1
@@ -356,11 +361,11 @@ fi
 echo
 
 # Activate commands lunch/brunch etc. locally for the directory
-echo -e "${_M_SUCCESS} Running ${_C_GR}. build/envsetup.sh${_C_DF}"
+print_good "Running ${_C_GR}. build/envsetup.sh${_C_DF}"
 . build/envsetup.sh
 
 # Check if vendor files were downloaded and add to the manifest (roomservice.xml) if not
-echo -e "${_M_SUCCESS} Checking ${_C_BL}vendor files${_C_DF}..."
+print_good "Checking ${_C_BL}vendor files${_C_DF}..."
 check_vendor_files=$(sed -nE '/path="vendor/p' ./.repo/local_manifests/roomservice.xml)
 if [[ -z "${check_vendor_files}" ]]; then
     warn "Couldn't find vendor files in ${_C_GR}${PWD}/.repo/roomservice.xml${_C_DF}. Trying to add manually..."
@@ -375,19 +380,19 @@ if [[ -z "${check_vendor_files}" ]]; then
         # If found, add the link to the manifest
         vendor_manifest="  <project name=\"TheMuppets/proprietary_vendor_${VENDOR}.git\" path=\"vendor/${VENDOR}\" remote=\"github\" />\n</manifest>"
         sed -ie "s@<\/manifest>@${vendor_manifest}@" ./.repo/local_manifests/roomservice.xml
-        echo -e "${_M_SUCCESS} ${_C_BL}Vendor files${_C_DF} added to the manifest."
+        print_good "${_C_BL}Vendor files${_C_DF} added to the manifest."
     fi
 else
-    echo -e "${_M_SUCCESS} ${_C_BL}Vendor files${_C_DF} exist."
+    print_good "${_C_BL}Vendor files${_C_DF} exist."
 fi
 
 # Resync with vendor files
-echo -e "${_M_SUCCESS} Resyncing...\n\n${_BREAK}"
+print_good "Resyncing...\n\n${_BREAK}"
 repo sync
 echo -e "${_BREAK}\n\n${_M_SUCCESS} Done."
 
 # Activate commands lunch/brunch etc. after resyncing
-echo -e "${_M_SUCCESS} Running ${_C_GR}. build/envsetup.sh${_C_DF}"
+print_good "Running ${_C_GR}. build/envsetup.sh${_C_DF}"
 . build/envsetup.sh
 
 # Display the debug information
@@ -438,7 +443,7 @@ codename_remove_common='<project name="LineageOS/android_device_samsung_'"${DEVI
 sed -ie "s@${codename_remove}@@" ./.repo/local_manifests/roomservice.xml
 sed -ie "s@${codename_remove_common}@@" ./.repo/local_manifests/roomservice.xml
 
-echo -e "${_M_SUCCESS} Downloading ${_C_BL}additional manifests${_C_DF}..."
+print_good "Downloading ${_C_BL}additional manifests${_C_DF}..."
 
 # Download additional manifests
 curl -sL 'https://raw.githubusercontent.com/snappautomotive/firmware-local_manifest/main/snappautomotive.xml' > ./.repo/local_manifests/snappautomotive.xml
@@ -447,10 +452,10 @@ curl -sL 'https://raw.githubusercontent.com/snappautomotive/firmware_lineage-loc
 # Replace the default branch with the chosen one
 sed -ie "s@lineage-18.1@${BRANCH}@" ./.repo/local_manifests/lineage-aaos.xml
 
-echo -e "${_M_SUCCESS} Aditional manifests downloaded to ${_C_GR}${PWD}/.repo/local_manifests/${_C_DF}"
+print_good "Aditional manifests downloaded to ${_C_GR}${PWD}/.repo/local_manifests/${_C_DF}"
 
 # Resync with the new manifests
-echo -e "${_M_SUCCESS} Resyncing...\n${_BREAK}"
+print_good "Resyncing...\n${_BREAK}"
 repo sync -j 4 --force-sync
 echo -e "${_BREAK}\n\n${_M_SUCCESS} Done."
 
@@ -463,6 +468,7 @@ if [ $? -eq 0 ]; then
     echo -e "${_BREAK}\n${_C_RD}[!] Failed to build AAOS for ${VENDOR_FULL} (${DEVICE_CODENAME})."
     exit 1
 else
-    echo -e "${_BREAK}\n${_M_SUCCESS} Successfully built for ${VENDOR_FULL} (${DEVICE_CODENAME}). Output to ${PWD}/out/target/product/${DEVICE_CODENAME}/"
+    echo -e "${_BREAK}"
+    print_good "Successfully built for ${VENDOR_FULL} (${DEVICE_CODENAME}). Output to ${PWD}/out/target/product/${DEVICE_CODENAME}/"
     exit 0
 fi
