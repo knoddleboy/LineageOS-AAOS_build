@@ -97,6 +97,14 @@ if [[ "${RAM_GB}" < 16 ]]; then
     warn "Note: at least ${_C_RD}16 GB${_C_OR} of available RAM is required."
 fi
 
+# Define the number of simultaneous threads. The less RAM the less threads
+threads=4
+if [[ "${RAM_GB}" <= 12 ]]; then
+    threads=3
+elif [[ "${RAM_GB}" <= 10 ]]; then
+    threads=2
+fi
+
 # Check for the disk size
 DISK_CAPACITY=$(df -H . \
                     | grep -vE '^Filesystem|tmpfs|cdrom' \
@@ -350,7 +358,7 @@ echo
 # Download the source code from the remote
 read -p "${_M_SUCCESS} ${_C_OR}Enter${_C_DF} to start downloading the source code... " code_downloading_confirm
 echo
-repo sync -c
+repo sync -c -j ${threads}
 if [ $? -eq 0 ]; then
     echo
     print_good "The ${_C_BL}source code${_C_GR} successfully${_C_DF} downloaded."
@@ -411,14 +419,6 @@ echo -e "\n${_BREAK}"
 
 echo -e "\n${_M_MSG} Building the ${_C_OR}LineageOS${_C_DF}...\n${_BREAK}"
 
-# Choose the number of simultaneous threads. The less RAM the less threads
-threads=4
-if [[ "${RAM_GB}" <= 12 ]]; then
-    threads=3
-elif [[ "${RAM_GB}" <= 10 ]]; then
-    threads=2
-fi
-
 # Build LineageOS with previously chosen number of threads
 brunch lineage_$DEVICE_CODENAME-userdebug -j ${threads}
 if [ $? -eq 0 ]; then
@@ -456,7 +456,7 @@ print_good "Aditional manifests downloaded to ${_C_GR}${PWD}/.repo/local_manifes
 
 # Resync with the new manifests
 print_good "Resyncing...\n${_BREAK}"
-repo sync -j 4 --force-sync
+repo sync -j ${threads} --force-sync
 echo -e "${_BREAK}\n\n${_M_SUCCESS} Done."
 
 ### BUILDING AAOS ###
