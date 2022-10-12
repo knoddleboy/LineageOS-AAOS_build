@@ -29,7 +29,7 @@ function warn() {
 }
 
 function shift_prev_line() {
-    shift_prev_line
+    echo -en $'\033[1A\033[0K'
 }
 
 # CTRL+C interruption notification
