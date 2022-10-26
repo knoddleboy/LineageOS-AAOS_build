@@ -345,7 +345,7 @@ fi
 
 # Initialize the remote in the working directory
 print_good "Initializing the repository on branch ${_C_OR}${BRANCH}${_C_DF}...\n"
-repo init -u --depth=0 'https://github.com/LineageOS/android.git' -b "${BRANCH}"
+repo init -u --depth=1 'https://github.com/LineageOS/android.git' -b "${BRANCH}"
 if [ $? -eq 0 ]; then
     shift_prev_line
     print_good "The ${_C_BL}repository ${_C_GR}successfully${_C_DF} initialized on the branch ${_C_OR}${BRANCH}${_C_DF} in ${PWD}."
